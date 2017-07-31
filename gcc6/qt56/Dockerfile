@@ -1,8 +1,8 @@
 FROM opensuse:42.2
 MAINTAINER Matwey V. Kornilov <matwey.kornilov@gmail.com>
 
-ENV CC gcc-6
 ENV CXX g++-6
+ENV CC gcc-6
 
 RUN zypper -n ar 'http://download.opensuse.org/repositories/devel:/gcc/openSUSE_Leap_42.2/devel:gcc.repo'
 RUN zypper -n ar 'http://download.opensuse.org/repositories/KDE:/Qt56/openSUSE_Leap_42.2/KDE:Qt56.repo'

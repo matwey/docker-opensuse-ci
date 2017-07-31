@@ -1,8 +1,8 @@
 FROM opensuse:tumbleweed
 MAINTAINER Matwey V. Kornilov <matwey.kornilov@gmail.com>
 
-ENV CC gcc-7
 ENV CXX g++-7
+ENV CC gcc-7
 
 RUN zypper -n ar 'http://download.opensuse.org/repositories/devel:/gcc/openSUSE_Factory/devel:gcc.repo'
 RUN zypper -n ar 'http://download.opensuse.org/repositories/KDE:/Qt59/openSUSE_Tumbleweed/KDE:Qt59.repo'

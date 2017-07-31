@@ -17,14 +17,21 @@ class Image(object):
 			return "http://download.opensuse.org/repositories/devel:/gcc/openSUSE_Factory/devel:gcc.repo"
 		elif self.suseversion == 422:
 			return "http://download.opensuse.org/repositories/devel:/gcc/openSUSE_Leap_42.2/devel:gcc.repo"
+		elif self.suseversion == 421:
+			return "http://download.opensuse.org/repositories/devel:/gcc/openSUSE_Leap_42.1/devel:gcc.repo"
 		else:
 			raise NotImplementedError()
 
 	def qt_repository(self):
+		factory_name = 'Tumbleweed'
+		if self.qt == 55:
+			factory_name = 'Factory'
 		if self.suseversion == -1:
-			return "http://download.opensuse.org/repositories/KDE:/Qt{0}/openSUSE_Tumbleweed/KDE:Qt{0}.repo".format(self.qt)
+			return "http://download.opensuse.org/repositories/KDE:/Qt{0}/openSUSE_{1}/KDE:Qt{0}.repo".format(self.qt, factory_name)
 		elif self.suseversion == 422:
 			return "http://download.opensuse.org/repositories/KDE:/Qt{0}/openSUSE_Leap_42.2/KDE:Qt{0}.repo".format(self.qt)
+		elif self.suseversion == 421:
+			return "http://download.opensuse.org/repositories/KDE:/Qt{0}/openSUSE_Leap_42.1/KDE:Qt{0}.repo".format(self.qt)
 		else:
 			raise NotImplementedError()
 
@@ -33,6 +40,8 @@ class Image(object):
 			return "opensuse:tumbleweed"
 		elif self.suseversion == 422:
 			return "opensuse:42.2"
+		elif self.suseversion == 421:
+			return "opensuse:42.1"
 		else:
 			raise NotImplementedError()
 
@@ -61,21 +70,26 @@ def generic_gcc(image, m):
 	image.packages += ['cmake','make','libQt5Widgets-devel','libQt5Test-devel','libQt5Gui-devel','libQt5Core-devel']
 	image.packages += ['gcc{}-c++'.format(gcc_suffix_without_dot),]
 
-def requires_leap(image, m):
-	if image.suseversion != 422:
+def requires_leap_422(image, m):
+	if image.suseversion > 422 or image.suseversion == -1:
 		image.suseversion = 422
+
+def requires_leap_421(image, m):
+	if image.suseversion > 421 or image.suseversion == -1:
+		image.suseversion = 421
 
 g = Generator()
 
 g.addRule("gcc(.*?)-qt(.*)", generic_gcc)
-g.addRule("gcc4.8-qt(.*)", requires_leap)
-g.addRule("gcc(.*?)-qt5([67])", requires_leap)
+g.addRule("gcc4.8-qt(.*)", requires_leap_422)
+g.addRule("gcc(.*?)-qt5([67])", requires_leap_422)
+g.addRule("gcc4.8-qt55", requires_leap_421)
 
 env = Environment(loader=FileSystemLoader('.'),trim_blocks=True)
 template = env.get_template('Dockerfile.Jinja2')
 
 for (compiler,version) in [("gcc",7),("gcc",6),("gcc","4.8")]:
-	for qt in [56,57,58,59]:
+	for qt in [55,56,57,58,59]:
 		im = Image(suseversion = -1, compiler = (compiler, version), qt = qt)
 		g.match(im, "{}{}-qt{}".format(compiler,version,qt))
 		#print(im.suseversion, im.compiler, im.qt, im.env, im.output_file(), im.packages)
