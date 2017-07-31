@@ -5,6 +5,6 @@ ENV CC gcc-7
 ENV CXX g++-7
 
 RUN zypper -n ar 'http://download.opensuse.org/repositories/devel:/gcc/openSUSE_Factory/devel:gcc.repo'
-RUN zypper -n ar 'http://download.opensuse.org/repositories/KDE:/Qt59/openSUSE_Tumbleweed/KDE:Qt59.repo'
+RUN zypper -n ar 'http://download.opensuse.org/repositories/KDE:/Qt58/openSUSE_Tumbleweed/KDE:Qt58.repo'
 
 RUN zypper -n --gpg-auto-import-keys install --no-recommends --auto-agree-with-licenses --force-resolution cmake make libQt5Widgets-devel libQt5Test-devel libQt5Gui-devel libQt5Core-devel gcc7-c++
