@@ -90,8 +90,8 @@ def generic_clang(image, m):
 	clang_suffix = m.group(1)
 	clang_suffix_without_dot = clang_suffix.replace(".","")
 	qt_suffix = m.group(2)
-	image.env['CC']  = 'clang-' + clang_suffix
-	image.env['CXX'] = 'clang++-' + clang_suffix
+	image.env['CC']  = 'clang'
+	image.env['CXX'] = 'clang++'
 	image.packages += ['cmake','make','libQt5Widgets-devel','libQt5Test-devel','libQt5Gui-devel','libQt5Core-devel']
 	image.packages += ['clang{}'.format(clang_suffix_without_dot),]
 
