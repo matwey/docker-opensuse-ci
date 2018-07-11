@@ -6,7 +6,7 @@ ENV CXX clang++-4
 
 
 RUN zypper -n ar -p 1 'https://download.opensuse.org/repositories/devel:/tools:/compiler/openSUSE_Factory/devel:tools:compiler.repo'
-RUN zypper -n ar -p 1 'https://download.opensuse.org/repositories/KDE:/Qt:/5.9/openSUSE_Tumbleweed/KDE:Qt:5.9.repo'
+RUN zypper -n ar -p 1 'https://download.opensuse.org/repositories/KDE:/Qt:/5.11/openSUSE_Tumbleweed/KDE:Qt:5.11.repo'
 
 
 RUN zypper -n --gpg-auto-import-keys install --no-recommends --auto-agree-with-licenses --force-resolution clang4 libQt5Widgets-devel libQt5Test-devel libQt5Gui-devel libQt5Core-devel cmake make
