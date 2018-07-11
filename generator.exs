@@ -13,6 +13,9 @@ defmodule Generator do
 	defp repo({:clang, _clang_version}, {:opensuse, :tumbleweed}) do
 		"https://download.opensuse.org/repositories/devel:/tools:/compiler/openSUSE_Factory/devel:tools:compiler.repo"
 	end
+	defp repo({:qt, 7}, {:opensuse, :tumbleweed}) do
+		"https://download.opensuse.org/repositories/KDE:/Qt:/5.7/openSUSE_Factory/KDE:Qt:5.7.repo"
+	end
 	defp repo({:qt, qt_version}, {:opensuse, :tumbleweed}) do
 		"https://download.opensuse.org/repositories/KDE:/Qt:/5.#{qt_version}/openSUSE_Tumbleweed/KDE:Qt:5.#{qt_version}.repo"
 	end
