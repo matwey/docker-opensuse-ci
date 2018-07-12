@@ -1,8 +1,8 @@
 FROM opensuse:tumbleweed
 MAINTAINER Matwey V. Kornilov <matwey.kornilov@gmail.com>
 
-ENV CC clang-4
-ENV CXX clang++-4
+ENV CC clang
+ENV CXX clang++
 
 
 RUN zypper -n ar -p 1 'https://download.opensuse.org/repositories/devel:/tools:/compiler/openSUSE_Factory/devel:tools:compiler.repo'

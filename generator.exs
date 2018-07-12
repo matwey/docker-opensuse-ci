@@ -42,8 +42,8 @@ defmodule Generator do
 	defp variables({:gcc, gcc_version}) do
 		[cc: "gcc-#{gcc_version}", cxx: "g++-#{gcc_version}"]
 	end
-	defp variables({:clang, clang_version}) do
-		[cc: "clang-#{clang_version}", cxx: "clang++-#{clang_version}"]
+	defp variables({:clang, _clang_version}) do
+		[cc: "clang", cxx: "clang++"]
 	end
 
 	defp baseimage({:opensuse, opensuse_version}) do
