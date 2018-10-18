@@ -1,4 +1,4 @@
-FROM opensuse:tumbleweed
+FROM opensuse/tumbleweed
 MAINTAINER Matwey V. Kornilov <matwey.kornilov@gmail.com>
 
 ENV CC gcc-8

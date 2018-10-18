@@ -46,8 +46,14 @@ defmodule Generator do
 		[cc: "clang", cxx: "clang++"]
 	end
 
-	defp baseimage({:opensuse, opensuse_version}) do
+	defp baseimage({:opensuse, :tumbleweed}) do
+		"opensuse/tumbleweed"
+	end
+	defp baseimage({:opensuse, opensuse_version}) when opensuse_version < 42.3 do
 		"opensuse:#{opensuse_version}"
+	end
+	defp baseimage({:opensuse, opensuse_version}) do
+		"opensuse/leap:#{opensuse_version}"
 	end
 
 	def path(%{:compiler => {:gcc, 4.8}, :qt => qt_version}) do

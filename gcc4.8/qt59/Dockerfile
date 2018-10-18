@@ -1,4 +1,4 @@
-FROM opensuse:42.3
+FROM opensuse/leap:42.3
 MAINTAINER Matwey V. Kornilov <matwey.kornilov@gmail.com>
 
 ENV CC gcc-4.8
