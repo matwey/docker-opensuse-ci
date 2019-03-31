@@ -94,8 +94,8 @@ defmodule ResolveDistro do
 end
 
 qt_minor_versions = [9, 10, 11, 12]
-gcc_versions = [7, 8]
-clang_versions = [4, 5, 6]
+gcc_versions = [7, 8, 9]
+clang_versions = [4, 5, 6, 7]
 
 environments_extra = [
 	%{compiler: {:gcc, 4.8}, qt: 6},
