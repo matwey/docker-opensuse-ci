@@ -93,7 +93,7 @@ defmodule ResolveDistro do
 	end
 end
 
-qt_minor_versions = [7, 8, 9, 10, 11, 12]
+qt_minor_versions = [9, 10, 11, 12]
 gcc_versions = [7, 8]
 clang_versions = [4, 5, 6]
 
