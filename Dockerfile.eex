@@ -1,8 +1,0 @@
-FROM <%= baseimage %>
-MAINTAINER Matwey V. Kornilov <matwey.kornilov@gmail.com>
-
-<%= Enum.join(Enum.map(variables, fn {k, v} -> "ENV #{String.upcase(to_string k)} #{v}\n" end), "") %>
-
-<%= Enum.join(Enum.map(repos, fn repo -> "RUN zypper -n ar -p 1 '#{repo}'\n" end), "") %>
-
-RUN zypper -n --gpg-auto-import-keys install --no-recommends --auto-agree-with-licenses --force-resolution <%= Enum.join(packages, " ") %>
