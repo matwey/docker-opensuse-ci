@@ -1,5 +1,64 @@
 #!/usr/bin/env elixir
 
+defmodule Git do
+	defp write_object(repo, type, content) do
+		object = type <> <<" ">> <> (byte_size(content) |> to_string) <> <<0>> <> content
+		hash = :crypto.hash(:sha, object)
+		object = object |> :zlib.compress
+
+		<<hash_head :: binary-size(1), hash_tail :: binary>> = hash
+		filebase = Path.join([
+			repo, ".git", "objects",
+			hash_to_text(hash_head)
+		])
+		filename = hash_to_text(hash_tail)
+
+		:ok = File.mkdir_p(filebase)
+		:ok = File.write(Path.join(filebase, filename), object)
+
+		hash
+	end
+
+	def write_blob(repo, content) do
+		write_object(repo, "blob", content)
+	end
+
+	def write_tree(repo, tree) do
+		content = Enum.join((for {mask, hash, name} <- tree, do: "#{mask} #{name}\0#{hash}"), "")
+
+		write_object(repo, "tree", content)
+	end
+
+	def write_commit(repo, tree, parents, message) do
+		tree_txt = hash_to_text(tree)
+		parent_args =  Enum.flat_map(parents, fn(p) -> ["-p", p] end)
+		{commit, 0} = System.cmd("git", ["-C", repo, "commit-tree", tree_txt] ++ parent_args ++ ["-m", message])
+
+		commit |> String.trim()
+	end
+
+	def show_ref(repo, refname) do
+		{result, code} = System.cmd("git", ["-C", repo, "show-ref", "--verify", refname])
+
+		case code do
+			0 -> [commit|_tail] = String.split(result, " ", trim: true);
+				{:ok, commit}
+			128 -> {:error, :not_found}
+		end
+	end
+
+	def update_ref(repo, refname, commit) do
+		{_result, 0} = System.cmd("git", ["-C", repo, "update-ref", refname, commit])
+	end
+
+	def hash_to_text(hash) when is_binary(hash) do
+		hash |> Base.encode16() |> String.downcase()
+	end
+	def hash_to_text(hash) when is_list(hash) do
+		hash
+	end
+end
+
 defmodule Generator do
 	require EEx
 	EEx.function_from_file :defp, :dockerfile2, "Dockerfile.eex", [:baseimage, :variables, :repos, :packages]
@@ -56,11 +115,11 @@ defmodule Generator do
 		"opensuse/leap:#{opensuse_version}"
 	end
 
-	def path(%{:compiler => {:gcc, 4.8}, :qt => qt_version}) do
-		"gcc4.8/qt5#{qt_version}"
+	def branch(%{:compiler => {:gcc, 4.8}, :qt => qt_version}) do
+		"docker-gcc4.8-qt5#{qt_version}"
 	end
-	def path(%{:compiler => {comp, comp_version}, :qt => qt_version}) do
-		"#{comp}#{comp_version}/qt5#{qt_version}"
+	def branch(%{:compiler => {comp, comp_version}, :qt => qt_version}) do
+		"docker-#{comp}#{comp_version}-qt5#{qt_version}"
 	end
 
 	def dockerfile(%{:compiler => comp, :qt => qt}, distro) do
@@ -93,6 +152,8 @@ defmodule ResolveDistro do
 	end
 end
 
+:ok = Application.ensure_started(:crypto)
+
 qt_minor_versions = [9, 10, 11, 12]
 gcc_versions = [7, 8, 9]
 clang_versions = [4, 5, 6, 7]
@@ -110,4 +171,20 @@ compilers = (for x <- gcc_versions, do: {:gcc, x}) ++ (for x <- clang_versions, 
 environments = (for comp <- compilers, qt <- qt_minor_versions, do: %{:compiler => comp, :qt => qt}) ++ environments_extra
 environments_and_distros = for x <- environments, do: {x, ResolveDistro.resolve x}
 
-Enum.map(environments_and_distros, fn {env, distro} -> path = Generator.path(env); :ok = File.mkdir_p(path); :ok = File.write(Path.join(path, "Dockerfile"), Generator.dockerfile(env, distro), [:binary]) end )
+{:ok, git_repo} = File.cwd()
+{:ok, master_commit} = Git.show_ref(".", "refs/heads/master")
+
+Enum.map(environments_and_distros, fn {env, distro} ->
+	branch = "refs/heads/" <> Generator.branch(env);
+	parents = case Git.show_ref(git_repo, branch) do
+		{:ok, commit} -> [master_commit, commit]
+		{:error, :not_found} -> [master_commit]
+	end
+
+	dockerfile = Generator.dockerfile(env, distro);
+	dockerfile_hash = Git.write_blob(git_repo, dockerfile);
+	tree_hash = Git.write_tree(git_repo, [{100755, dockerfile_hash, "Dockerfile"}]);
+
+	commit = Git.write_commit(git_repo, tree_hash, parents, "Update Dockerfile");
+	Git.update_ref(git_repo, branch, commit)
+end)
